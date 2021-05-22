@@ -1,13 +1,15 @@
 import pygame
 import config
+from game import Game
 from objects import Stone
+from utility import *
 
 
 class App:
     def __init__(self):
         self._running = True
         self.DISPLAYSURF = None
-        self.stones = []
+        self.game = Game()
 
     def on_init(self):
         pygame.init()
@@ -17,6 +19,9 @@ class App:
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
+        if event.type == pygame.MOUSEBUTTONUP:
+            r, c = convertToBoard(pygame.mouse.get_pos())
+            self.game.play(r, c)
 
     def on_loop(self):
         pass
@@ -42,8 +47,15 @@ class App:
                 x = i * config.STONE_SIZE + config.GAP_SIZE//2
                 y = j * config.STONE_SIZE + config.GAP_SIZE//2
                 pygame.draw.circle(self.DISPLAYSURF, config.RED, (x, y), s)
+        # --------------------------------- hovering --------------------------------- #
+        r, c = convertToBoard(pygame.mouse.get_pos())
+        if self.game.canPlay(r, c):
+            pygame.draw.circle(self.DISPLAYSURF, self.game.turn,
+                               (c * config.STONE_SIZE + config.GAP_SIZE//2,
+                                r * config.STONE_SIZE + config.GAP_SIZE//2),
+                               config.STONE_SIZE//4)
         # -------------------------------- draw stones ------------------------------- #
-        for stone in self.stones:
+        for stone in self.game.stones:
             stone.draw(self.DISPLAYSURF)
         pygame.display.flip()
 
