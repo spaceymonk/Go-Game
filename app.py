@@ -21,6 +21,7 @@ class App:
         if event.type == pygame.MOUSEBUTTONUP:
             r, c = convertToBoardCoord(pygame.mouse.get_pos())
             self.game.play(r, c)
+            self.game.compute_territories()
 
     def on_loop(self):
         pass
@@ -45,7 +46,7 @@ class App:
                 pygame.draw.circle(self.DISPLAYSURF, config.RED,
                                    (j * config.STONE_SIZE + config.GAP_SIZE//2,
                                     i * config.STONE_SIZE + config.GAP_SIZE//2),
-                                   4)
+                                   config.STONE_SIZE//8)
                 if self.game.board[i][j] == 2:
                     pygame.draw.circle(self.DISPLAYSURF, config.WHITE,
                                        (j * config.STONE_SIZE + config.GAP_SIZE//2,

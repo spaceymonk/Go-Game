@@ -14,23 +14,23 @@ def inBoardRange(x, y):
     return True
 
 
-def get_available_neighbours(x_y):
-    x, y = x_y
+def get_all_liberties(r_c):
+    r, c = r_c
     neighbours = []
-    if inBoardRange(x - 1, y - 1):
-        neighbours.append((x - 1, y - 1))
-    if inBoardRange(x - 0, y - 1):
-        neighbours.append((x - 0, y - 1))
-    if inBoardRange(x + 1, y - 1):
-        neighbours.append((x + 1, y - 1))
-    if inBoardRange(x - 1, y + 1):
-        neighbours.append((x - 1, y + 1))
-    if inBoardRange(x - 0, y + 1):
-        neighbours.append((x - 0, y + 1))
-    if inBoardRange(x + 1, y + 1):
-        neighbours.append((x + 1, y + 1))
-    if inBoardRange(x - 1, y - 0):
-        neighbours.append((x - 1, y - 0))
-    if inBoardRange(x + 1, y - 0):
-        neighbours.append((x + 1, y - 0))
+    # if inBoardRange(x - 1, y - 1):
+    #     neighbours.append((x - 1, y - 1))
+    if inBoardRange(r - 0, c - 1):
+        neighbours.append((r - 0, c - 1))
+    # if inBoardRange(r + 1, c - 1):
+    #     neighbours.append((r + 1, c - 1))
+    # if inBoardRange(r - 1, c + 1):
+    #     neighbours.append((r - 1, c + 1))
+    if inBoardRange(r - 0, c + 1):
+        neighbours.append((r - 0, c + 1))
+    # if inBoardRange(r + 1, c + 1):
+    #     neighbours.append((r + 1, c + 1))
+    if inBoardRange(r - 1, c - 0):
+        neighbours.append((r - 1, c - 0))
+    if inBoardRange(r + 1, c - 0):
+        neighbours.append((r + 1, c - 0))
     return neighbours
