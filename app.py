@@ -1,7 +1,6 @@
 import pygame
 import config
 from game import Game
-from objects import Stone
 from utility import *
 
 
@@ -20,7 +19,7 @@ class App:
         if event.type == pygame.QUIT:
             self._running = False
         if event.type == pygame.MOUSEBUTTONUP:
-            r, c = convertToBoard(pygame.mouse.get_pos())
+            r, c = convertToBoardCoord(pygame.mouse.get_pos())
             self.game.play(r, c)
 
     def on_loop(self):
@@ -43,20 +42,37 @@ class App:
             pygame.draw.line(self.DISPLAYSURF, config.RED, (xmin, ymin), (xmax, ymax))
         for i in range(config.BOARD_RESOLUTION[0]):
             for j in range(config.BOARD_RESOLUTION[1]):
-                s = 4
-                x = i * config.STONE_SIZE + config.GAP_SIZE//2
-                y = j * config.STONE_SIZE + config.GAP_SIZE//2
-                pygame.draw.circle(self.DISPLAYSURF, config.RED, (x, y), s)
+                pygame.draw.circle(self.DISPLAYSURF, config.RED,
+                                   (j * config.STONE_SIZE + config.GAP_SIZE//2,
+                                    i * config.STONE_SIZE + config.GAP_SIZE//2),
+                                   4)
+                if self.game.board[i][j] == 2:
+                    pygame.draw.circle(self.DISPLAYSURF, config.WHITE,
+                                       (j * config.STONE_SIZE + config.GAP_SIZE//2,
+                                        i * config.STONE_SIZE + config.GAP_SIZE//2),
+                                       config.STONE_SIZE//2)
+                if self.game.board[i][j] == 1:
+                    pygame.draw.circle(self.DISPLAYSURF, config.BLACK,
+                                       (j * config.STONE_SIZE + config.GAP_SIZE//2,
+                                        i * config.STONE_SIZE + config.GAP_SIZE//2),
+                                       config.STONE_SIZE//2)
+                if self.game.board[i][j] == -1:
+                    pygame.draw.circle(self.DISPLAYSURF, config.BLACK,
+                                       (j * config.STONE_SIZE + config.GAP_SIZE//2,
+                                        i * config.STONE_SIZE + config.GAP_SIZE//2),
+                                       config.STONE_SIZE//8)
+                if self.game.board[i][j] == -2:
+                    pygame.draw.circle(self.DISPLAYSURF, config.WHITE,
+                                       (j * config.STONE_SIZE + config.GAP_SIZE//2,
+                                        i * config.STONE_SIZE + config.GAP_SIZE//2),
+                                       config.STONE_SIZE//8)
         # --------------------------------- hovering --------------------------------- #
-        r, c = convertToBoard(pygame.mouse.get_pos())
+        r, c = convertToBoardCoord(pygame.mouse.get_pos())
         if self.game.canPlay(r, c):
-            pygame.draw.circle(self.DISPLAYSURF, self.game.turn,
+            pygame.draw.circle(self.DISPLAYSURF, config.WHITE if self.game.turn == 2 else config.BLACK,
                                (c * config.STONE_SIZE + config.GAP_SIZE//2,
                                 r * config.STONE_SIZE + config.GAP_SIZE//2),
                                config.STONE_SIZE//4)
-        # -------------------------------- draw stones ------------------------------- #
-        for stone in self.game.stones:
-            stone.draw(self.DISPLAYSURF)
         pygame.display.flip()
 
     def on_cleanup(self):
