@@ -6,7 +6,7 @@ from utility import *
 
 class App:
     def __init__(self):
-        self._running = True
+        self._running = False
         self.DISPLAYSURF = None
         self.game = Game()
 
@@ -22,6 +22,7 @@ class App:
             r, c = convertToBoardCoord(pygame.mouse.get_pos())
             self.game.play(r, c)
             self.game.compute_territories()
+            pygame.display.set_caption("Round: {}".format(self.game.round))
 
     def on_loop(self):
         pass
@@ -41,6 +42,7 @@ class App:
             xmax = config.SCREEN_RESOLUTION[0] + config.GAP_SIZE//2
             ymax = i * config.STONE_SIZE + config.GAP_SIZE//2
             pygame.draw.line(self.DISPLAYSURF, config.RED, (xmin, ymin), (xmax, ymax))
+        # -------------------------------- draw stones ------------------------------- #
         for i in range(config.BOARD_RESOLUTION[0]):
             for j in range(config.BOARD_RESOLUTION[1]):
                 pygame.draw.circle(self.DISPLAYSURF, config.RED,
