@@ -1,5 +1,4 @@
 import config
-from utility import *
 from collections import deque
 
 
@@ -16,7 +15,6 @@ class Game:
             self.round += 1
             self.board[r][c] = self.turn
             self.nextTurn()
-            
 
     def canPlay(self, r, c):
         if r < 0 or r >= self.rows:
@@ -26,6 +24,30 @@ class Game:
         if self.board[r][c] > 0:
             return False
         return True
+
+    def get_all_liberties(self, r_c):
+        def inBoardRange(x, y): return not (x < 0 or y < 0 or x >= self.rows or y >= self.cols)
+        r, c = r_c
+        neighbours = []
+        if inBoardRange(r - 0, c - 1):
+            neighbours.append((r - 0, c - 1))
+        if inBoardRange(r - 0, c + 1):
+            neighbours.append((r - 0, c + 1))
+        if inBoardRange(r - 1, c - 0):
+            neighbours.append((r - 1, c - 0))
+        if inBoardRange(r + 1, c - 0):
+            neighbours.append((r + 1, c - 0))
+        return neighbours
+
+    def get_available_liberties(self, r_c):
+        libs = self.get_all_liberties(r_c)
+        r, c = r_c
+        avail = []
+        for lib in libs:
+            lr, lc = lib
+            if self.board[r][c] == self.board[lr][lc]:
+                avail.append(lib)
+        return avail
 
     def compute_territories(self):
         if self.round <= 1:
@@ -43,7 +65,7 @@ class Game:
                     current_color = 0
                     color_picked = False
                     while len(qq) != 0:
-                        for nr, nc in get_all_liberties(qq.popleft()):
+                        for nr, nc in self.get_all_liberties(qq.popleft()):
                             if not color_picked and self.board[nr][nc] > 0:
                                 current_color = self.board[nr][nc]
                                 color_picked = True
