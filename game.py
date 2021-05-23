@@ -29,10 +29,18 @@ class Game:
         return True
 
     def compute_captures(self, played):
+        def remove_cells(p):
+            for r, c in p:
+                if self.board[r][c] == 1:
+                    self.white_captures.append((r, c))
+                if self.board[r][c] == 2:
+                    self.black_captures.append((r, c))
+                self.board[r][c] = 0
         visited = set()
+        paths = []
         for i in range(self.rows):
             for j in range(self.cols):
-                if self.board[i][j] > 0 and not (i, j) in visited and (i, j) != played:
+                if self.board[i][j] > 0 and not (i, j) in visited:
                     color = self.board[i][j]
                     liberties = set()
                     qq = deque()
@@ -48,12 +56,14 @@ class Game:
                             elif self.board[liberty[0]][liberty[1]] <= 0:
                                 liberties.add(liberty)
                     if len(liberties) == 0:
-                        for r, c in path:
-                            if self.board[r][c] == 1:
-                                self.white_captures.append((r, c))
-                            if self.board[r][c] == 2:
-                                self.black_captures.append((r, c))
-                            self.board[r][c] = 0
+                        paths.append(path)
+        if len(paths) > 1:
+            for path in paths:
+                if not played in path:
+                    remove_cells(path)
+        elif len(paths) == 1:
+            path = paths[0]
+            remove_cells(path)
 
     def get_all_liberties(self, r_c):
         def inBoardRange(x, y): return not (x < 0 or y < 0 or x >= self.rows or y >= self.cols)
