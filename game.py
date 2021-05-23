@@ -9,12 +9,15 @@ class Game:
         self.board = [[0 for i in range(self.cols)] for j in range(self.rows)]
         self.turn = 1
         self.round = 0
+        self.white_captures = []
+        self.black_captures = []
 
     def play(self, r, c):
         if self.canPlay(r, c):
             self.round += 1
             self.board[r][c] = self.turn
             self.nextTurn()
+            self.compute_captures((r, c))
 
     def canPlay(self, r, c):
         if r < 0 or r >= self.rows:
@@ -24,6 +27,33 @@ class Game:
         if self.board[r][c] > 0:
             return False
         return True
+
+    def compute_captures(self, played):
+        visited = set()
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.board[i][j] > 0 and not (i, j) in visited and (i, j) != played:
+                    color = self.board[i][j]
+                    liberties = set()
+                    qq = deque()
+                    path = [(i, j)]
+                    qq.append((i, j))
+                    visited.add((i, j))
+                    while len(qq) != 0:
+                        for liberty in self.get_all_liberties(qq.popleft()):
+                            if not liberty in visited and self.board[liberty[0]][liberty[1]] == color:
+                                qq.append(liberty)
+                                visited.add(liberty)
+                                path.append(liberty)
+                            elif self.board[liberty[0]][liberty[1]] <= 0:
+                                liberties.add(liberty)
+                    if len(liberties) == 0:
+                        for r, c in path:
+                            if self.board[r][c] == 1:
+                                self.white_captures.append((r, c))
+                            if self.board[r][c] == 2:
+                                self.black_captures.append((r, c))
+                            self.board[r][c] = 0
 
     def get_all_liberties(self, r_c):
         def inBoardRange(x, y): return not (x < 0 or y < 0 or x >= self.rows or y >= self.cols)
@@ -38,16 +68,6 @@ class Game:
         if inBoardRange(r + 1, c - 0):
             neighbours.append((r + 1, c - 0))
         return neighbours
-
-    def get_available_liberties(self, r_c):
-        libs = self.get_all_liberties(r_c)
-        r, c = r_c
-        avail = []
-        for lib in libs:
-            lr, lc = lib
-            if self.board[r][c] == self.board[lr][lc]:
-                avail.append(lib)
-        return avail
 
     def compute_territories(self):
         if self.round <= 1:
