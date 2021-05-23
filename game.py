@@ -6,7 +6,7 @@ from collections import deque
 class Game:
     def __init__(self) -> None:
         self.rows = config.BOARD_RESOLUTION[0]
-        self.cols = self.cols
+        self.cols = config.BOARD_RESOLUTION[1]
         self.board = [[0 for i in range(self.cols)] for j in range(self.rows)]
         self.turn = 1
         self.round = 0
