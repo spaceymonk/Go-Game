@@ -23,7 +23,6 @@ class App:
             r, c = convertToBoardCoord(pygame.mouse.get_pos())
             self.game.play(r, c)
             self.game.compute_territories()
-
         if event.type == pygame.KEYUP:
             if event.key == pygame.K_SPACE:
                 self.game.pass_turn()
@@ -31,9 +30,7 @@ class App:
                     self._running = False
 
     def on_loop(self):
-        pygame.display.set_caption("Round: {} B:{} W:{}".format(len(self.game.gamelog),
-                                                                self.game.black_captures,
-                                                                self.game.white_captures))
+        pygame.display.set_caption(f"Round: {len(self.game.gamelog)} B: {self.game.black_captures}/{self.game.black_region_count} W: {self.game.white_captures}/{self.game.white_region_count}")
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #
@@ -53,10 +50,6 @@ class App:
         # -------------------------------- draw stones ------------------------------- #
         for i in range(config.BOARD_RESOLUTION[0]):
             for j in range(config.BOARD_RESOLUTION[1]):
-                pygame.draw.circle(self.DISPLAYSURF, config.RED,
-                                   (j * config.STONE_SIZE + config.GAP_SIZE//2,
-                                    i * config.STONE_SIZE + config.GAP_SIZE//2),
-                                   config.STONE_SIZE//8)
                 if self.game.board[i][j] == 2:
                     pygame.draw.circle(self.DISPLAYSURF, config.WHITE,
                                        (j * config.STONE_SIZE + config.GAP_SIZE//2,
@@ -77,6 +70,18 @@ class App:
                                        (j * config.STONE_SIZE + config.GAP_SIZE//2,
                                         i * config.STONE_SIZE + config.GAP_SIZE//2),
                                        config.STONE_SIZE//8)
+        # --------------------------------- highlight -------------------------------- #
+        if len(self.game.gamelog) != 0:
+            t, r, c = self.game.gamelog[-1]
+            if r != None:
+                pygame.draw.circle(self.DISPLAYSURF, config.GRAY,
+                                   (c * config.STONE_SIZE + config.GAP_SIZE//2,
+                                    r * config.STONE_SIZE + config.GAP_SIZE//2),
+                                   config.STONE_SIZE//2, config.STONE_SIZE//8)
+            else:
+                font = pygame.font.SysFont(None, 24)
+                img = font.render(f'{"Black" if t==1 else "White"} passed', True, config.BLUE)
+                self.DISPLAYSURF.blit(img, (0, 0))
         # --------------------------------- hovering --------------------------------- #
         r, c = convertToBoardCoord(pygame.mouse.get_pos())
         if self.game.can_play(r, c):

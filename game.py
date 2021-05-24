@@ -11,6 +11,8 @@ class Game:
         self.gamelog = []
         self.white_captures = 0
         self.black_captures = 0
+        self.white_region_count = 0
+        self.black_region_count = 0
 
     def pass_turn(self):
         self.gamelog.append((self.turn, None, None))
@@ -103,10 +105,8 @@ class Game:
         return neighbours
 
     def compute_territories(self):
-        wt = 0
-        bt = 0
-        if len(self.gamelog) <= 1:
-            return bt, wt
+        self.white_region_count = 0
+        self.black_region_count = 0
         visited = set()
         for i in range(self.rows):
             for j in range(self.cols):
@@ -134,7 +134,14 @@ class Game:
                                     qq.append((nr, nc))
                                     path.append((nr, nc))
                     for r, c in path:
-                        self.board[r][c] = -current_color if valid else 0
+                        if valid:
+                            self.board[r][c] = -current_color
+                            if current_color == 1:
+                                self.black_region_count += 1
+                            if current_color == 2:
+                                self.white_region_count += 1
+                        else:
+                            self.board[r][c] = 0
 
     def nextTurn(self):
         self.turn = 1 if self.turn == 2 else 2
