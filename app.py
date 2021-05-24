@@ -30,7 +30,7 @@ class App:
                     self._running = False
 
     def on_loop(self):
-        pygame.display.set_caption(f"Round: {len(self.game.log)} B: {self.game.black_captures}/{self.game.black_region_count} W: {self.game.white_captures}/{self.game.white_region_count}")
+        pygame.display.set_caption(f"Round: {len(self.game.log)}")
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #

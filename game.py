@@ -10,8 +10,6 @@ class Game:
         self.snapshot = [[None for i in range(self.cols)] for j in range(self.rows)]  # last snapshot of the board
         self.turn = 1
         self.log = []
-        self.white_captures = 0
-        self.black_captures = 0
         self.white_region_count = 0
         self.black_region_count = 0
 
@@ -21,18 +19,12 @@ class Game:
 
     def play(self, r, c):
         if self.can_play(r, c):
+            self.take_snapshot()
             self.log.append((self.turn, r, c))
             self.board[r][c] = self.turn
-            self.take_snapshot()
             self.nextTurn()
             paths = self.compute_captures()
-            if len(paths) > 1:
-                for path in paths:
-                    if not (r, c) in path:
-                        self.capture_stone(path)
-            elif len(paths) == 1:
-                path = paths[0]
-                self.capture_stone(path)
+            self.remove_paths((r, c), paths)
 
     def take_snapshot(self):
         for i in range(self.rows):
@@ -48,20 +40,19 @@ class Game:
         # needs to be empty cell
         if self.board[r][c] > 0:
             return False
+        # make the move
+        played = [[self.board[i][j] for j in range(self.cols)] for i in range(self.rows)]
+        played[r][c] = self.turn
+        paths = self.compute_captures(played)
+        self.remove_paths((r, c), paths, played)
         # cannot play where no liberty
-        tmp = self.board[r][c]
-        self.board[r][c] = self.turn
-        paths = self.compute_captures()
         if len(paths) == 1 and (r, c) in paths[0]:
-            self.board[r][c] = tmp
             return False
         # no replay in Ko position
         for i in range(self.rows):
             for j in range(self.cols):
-                if self.board[i][j] > 0 and self.snapshot[i][j] != self.board[i][j]:
-                    self.board[r][c] = tmp
+                if played[i][j] > 0 and self.snapshot[i][j] != played[i][j]:
                     return True
-        self.board[r][c] = tmp
         return False
 
     def game_over(self):
@@ -69,21 +60,29 @@ class Game:
             return False
         return self.log[-1][1] == None and self.log[-2][1] == None
 
-    def capture_stone(self, p):
-        for r, c in p:
-            if self.board[r][c] == 1:
-                self.white_captures += 1
-            if self.board[r][c] == 2:
-                self.black_captures += 1
-            self.board[r][c] = 0
+    def remove_paths(self, last_played, paths, board=None):
+        board = self.board if board == None else board
+        if len(paths) > 1:
+            for path in paths:
+                if not last_played in path:
+                    self.capture_stone(path, board)
+        elif len(paths) == 1:
+            path = paths[0]
+            self.capture_stone(path, board)
 
-    def compute_captures(self):
+    def capture_stone(self, path, board=None):
+        board = self.board if board == None else board
+        for r, c in path:
+            board[r][c] = 0
+
+    def compute_captures(self, board=None):
+        board = self.board if board == None else board
         visited = set()
         paths = []
         for i in range(self.rows):
             for j in range(self.cols):
-                if self.board[i][j] > 0 and not (i, j) in visited:
-                    color = self.board[i][j]
+                if board[i][j] > 0 and not (i, j) in visited:
+                    color = board[i][j]
                     liberties = set()
                     qq = deque()
                     path = [(i, j)]
@@ -92,11 +91,11 @@ class Game:
                     while len(qq) != 0:
                         for neighbour in self.get_all_neighbours(qq.popleft()):
                             nr, nc = neighbour
-                            if not neighbour in visited and self.board[nr][nc] == color:
+                            if not neighbour in visited and board[nr][nc] == color:
                                 qq.append(neighbour)
                                 visited.add(neighbour)
                                 path.append(neighbour)
-                            elif self.board[nr][nc] <= 0:
+                            elif board[nr][nc] <= 0:
                                 liberties.add(neighbour)
                     if len(liberties) == 0:
                         paths.append(path)
