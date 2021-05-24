@@ -81,7 +81,12 @@ class App:
             else:
                 font = pygame.font.SysFont(None, 24)
                 img = font.render(f'{"Black" if t==1 else "White"} passed', True, config.BLUE)
-                self.DISPLAYSURF.blit(img, (0, 0))
+                self.DISPLAYSURF.blit(img, (5, 5))
+        # ------------------------------- display time ------------------------------- #
+        font = pygame.font.SysFont(None, 24)
+        s = f"{pygame.time.get_ticks()//1000}"
+        img = font.render(s, True, config.BLUE)
+        self.DISPLAYSURF.blit(img, (config.SCREEN_RESOLUTION_WITH_GAPS[0]-font.size(s)[0]-5, 5))
         # --------------------------------- hovering --------------------------------- #
         r, c = convertToBoardCoord(pygame.mouse.get_pos())
         if self.game.can_play(r, c):
