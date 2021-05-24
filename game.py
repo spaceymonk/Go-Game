@@ -7,24 +7,23 @@ class Game:
         self.rows = config.BOARD_RESOLUTION[0]
         self.cols = config.BOARD_RESOLUTION[1]
         self.board = [[0 for i in range(self.cols)] for j in range(self.rows)]
+        self.snapshot = [[None for i in range(self.cols)] for j in range(self.rows)]  # last snapshot of the board
         self.turn = 1
-        self.gamelog = []
+        self.log = []
         self.white_captures = 0
         self.black_captures = 0
         self.white_region_count = 0
         self.black_region_count = 0
 
-    def undo():
-        pass
-
     def pass_turn(self):
-        self.gamelog.append((self.turn, None, None))
+        self.log.append((self.turn, None, None))
         self.nextTurn()
 
     def play(self, r, c):
         if self.can_play(r, c):
-            self.gamelog.append((self.turn, r, c))
+            self.log.append((self.turn, r, c))
             self.board[r][c] = self.turn
+            self.take_snapshot()
             self.nextTurn()
             paths = self.compute_captures()
             if len(paths) > 1:
@@ -34,6 +33,11 @@ class Game:
             elif len(paths) == 1:
                 path = paths[0]
                 self.capture_stone(path)
+
+    def take_snapshot(self):
+        for i in range(self.rows):
+            for j in range(self.cols):
+                self.snapshot[i][j] = self.board[i][j]
 
     def can_play(self, r, c):
         # range check
@@ -48,17 +52,22 @@ class Game:
         tmp = self.board[r][c]
         self.board[r][c] = self.turn
         paths = self.compute_captures()
-        self.board[r][c] = tmp
         if len(paths) == 1 and (r, c) in paths[0]:
+            self.board[r][c] = tmp
             return False
         # no replay in Ko position
-        # todo
-        return True
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.board[i][j] > 0 and self.snapshot[i][j] != self.board[i][j]:
+                    self.board[r][c] = tmp
+                    return True
+        self.board[r][c] = tmp
+        return False
 
     def game_over(self):
-        if len(self.gamelog) < 2:
+        if len(self.log) < 2:
             return False
-        return self.gamelog[-1][1] == None and self.gamelog[-2][1] == None
+        return self.log[-1][1] == None and self.log[-2][1] == None
 
     def capture_stone(self, p):
         for r, c in p:

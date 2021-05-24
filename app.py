@@ -28,12 +28,9 @@ class App:
                 self.game.pass_turn()
                 if self.game.game_over():
                     self._running = False
-            if event.key == pygame.K_r:
-                self.game.undo()
-                self.game.compute_territories()
 
     def on_loop(self):
-        pygame.display.set_caption(f"Round: {len(self.game.gamelog)} B: {self.game.black_captures}/{self.game.black_region_count} W: {self.game.white_captures}/{self.game.white_region_count}")
+        pygame.display.set_caption(f"Round: {len(self.game.log)} B: {self.game.black_captures}/{self.game.black_region_count} W: {self.game.white_captures}/{self.game.white_region_count}")
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #
@@ -74,8 +71,8 @@ class App:
                                         i * config.STONE_SIZE + config.GAP_SIZE//2),
                                        config.STONE_SIZE//8)
         # --------------------------------- highlight -------------------------------- #
-        if len(self.game.gamelog) != 0:
-            t, r, c = self.game.gamelog[-1]
+        if len(self.game.log) != 0:
+            t, r, c = self.game.log[-1]
             if r != None:
                 pygame.draw.circle(self.DISPLAYSURF, config.GRAY,
                                    (c * config.STONE_SIZE + config.GAP_SIZE//2,
