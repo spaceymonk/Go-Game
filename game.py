@@ -55,6 +55,18 @@ class Game:
                     return True
         return False
 
+    def compute_scores(self):
+        self.compute_territories()
+        white_score = 0
+        black_score = 0
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.board[i][j] == 1 or self.board[i][j] == -1:
+                    black_score += 1
+                elif self.board[i][j] == 2 or self.board[i][j] == -2:
+                    white_score += 1
+        return black_score, white_score
+
     def game_over(self):
         if len(self.log) < 2:
             return False

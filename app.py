@@ -30,7 +30,8 @@ class App:
                     self._running = False
 
     def on_loop(self):
-        pygame.display.set_caption(f"Round: {len(self.game.log)}")
+        black, white = self.game.compute_scores()
+        pygame.display.set_caption(f"Round: {len(self.game.log)} B: {black} W: {white}")
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #
@@ -97,7 +98,9 @@ class App:
         pygame.display.flip()
 
     def on_cleanup(self):
-        print('Game finished.')
+        black, white = self.game.compute_scores()
+        print(f'Game finished. Black score is {black} and white score is {white}.')
+        print(f'Game took {len(self.game.log)} rounds and {pygame.time.get_ticks()/1000:.2f} seconds.')
         pygame.quit()
 
     def on_execute(self):
