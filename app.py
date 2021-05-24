@@ -28,6 +28,9 @@ class App:
                 self.game.pass_turn()
                 if self.game.game_over():
                     self._running = False
+            if event.key == pygame.K_r:
+                self.game.undo()
+                self.game.compute_territories()
 
     def on_loop(self):
         pygame.display.set_caption(f"Round: {len(self.game.gamelog)} B: {self.game.black_captures}/{self.game.black_region_count} W: {self.game.white_captures}/{self.game.white_region_count}")
@@ -79,7 +82,7 @@ class App:
                                     r * config.STONE_SIZE + config.GAP_SIZE//2),
                                    config.STONE_SIZE//2, config.STONE_SIZE//8)
             else:
-                font = pygame.font.SysFont(None, 24)
+                font = pygame.font.SysFont(None, 20)
                 img = font.render(f'{"Black" if t==1 else "White"} passed', True, config.BLUE)
                 self.DISPLAYSURF.blit(img, (5, 5))
         # ------------------------------- display time ------------------------------- #

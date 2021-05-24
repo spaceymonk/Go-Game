@@ -14,6 +14,9 @@ class Game:
         self.white_region_count = 0
         self.black_region_count = 0
 
+    def undo():
+        pass
+
     def pass_turn(self):
         self.gamelog.append((self.turn, None, None))
         self.nextTurn()
