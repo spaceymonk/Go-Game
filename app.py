@@ -22,7 +22,9 @@ class App:
             r, c = convertToBoardCoord(pygame.mouse.get_pos())
             self.game.play(r, c)
             self.game.compute_territories()
-            pygame.display.set_caption("Round: {}".format(self.game.round))
+            pygame.display.set_caption("Round: {} B:{} W:{}".format(len(self.game.gamelog),
+                                                                    self.game.black_captures,
+                                                                    self.game.white_captures))
 
     def on_loop(self):
         pass
@@ -71,7 +73,7 @@ class App:
                                        config.STONE_SIZE//8)
         # --------------------------------- hovering --------------------------------- #
         r, c = convertToBoardCoord(pygame.mouse.get_pos())
-        if self.game.canPlay(r, c):
+        if self.game.can_play(r, c):
             pygame.draw.circle(self.DISPLAYSURF, config.WHITE if self.game.turn == 2 else config.BLACK,
                                (c * config.STONE_SIZE + config.GAP_SIZE//2,
                                 r * config.STONE_SIZE + config.GAP_SIZE//2),
