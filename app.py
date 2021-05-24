@@ -8,6 +8,7 @@ class App:
     def __init__(self):
         self._running = False
         self.DISPLAYSURF = None
+        self.refresh = False
         self.game = Game()
 
     def on_init(self):
@@ -22,12 +23,17 @@ class App:
             r, c = convertToBoardCoord(pygame.mouse.get_pos())
             self.game.play(r, c)
             self.game.compute_territories()
-            pygame.display.set_caption("Round: {} B:{} W:{}".format(len(self.game.gamelog),
-                                                                    self.game.black_captures,
-                                                                    self.game.white_captures))
+
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_SPACE:
+                self.game.pass_turn()
+                if self.game.game_over():
+                    self._running = False
 
     def on_loop(self):
-        pass
+        pygame.display.set_caption("Round: {} B:{} W:{}".format(len(self.game.gamelog),
+                                                                self.game.black_captures,
+                                                                self.game.white_captures))
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #
@@ -81,6 +87,7 @@ class App:
         pygame.display.flip()
 
     def on_cleanup(self):
+        print('Game finished.')
         pygame.quit()
 
     def on_execute(self):

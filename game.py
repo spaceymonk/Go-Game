@@ -12,6 +12,10 @@ class Game:
         self.white_captures = 0
         self.black_captures = 0
 
+    def pass_turn(self):
+        self.gamelog.append((self.turn, None, None))
+        self.nextTurn()
+
     def play(self, r, c):
         if self.can_play(r, c):
             self.gamelog.append((self.turn, r, c))
@@ -47,12 +51,9 @@ class Game:
         return True
 
     def game_over(self):
-        finished = True
-        for i in range(self.rows):
-            for j in range(self.cols):
-                if self.board[i][j] == 0:
-                    finished = False
-        return finished
+        if len(self.gamelog) < 2:
+            return False
+        return self.gamelog[-1][1] == None and self.gamelog[-2][1] == None
 
     def capture_stone(self, p):
         for r, c in p:
@@ -102,8 +103,10 @@ class Game:
         return neighbours
 
     def compute_territories(self):
+        wt = 0
+        bt = 0
         if len(self.gamelog) <= 1:
-            return
+            return bt, wt
         visited = set()
         for i in range(self.rows):
             for j in range(self.cols):
