@@ -8,34 +8,61 @@ class Game:
         self.cols = config.BOARD_RESOLUTION[1]
         self.board = [[0 for i in range(self.cols)] for j in range(self.rows)]
         self.turn = 1
-        self.round = 0
-        self.white_captures = []
-        self.black_captures = []
+        self.gamelog = []
+        self.white_captures = 0
+        self.black_captures = 0
 
     def play(self, r, c):
-        if self.canPlay(r, c):
-            self.round += 1
+        if self.can_play(r, c):
+            self.gamelog.append((self.turn, r, c))
             self.board[r][c] = self.turn
             self.nextTurn()
-            self.compute_captures((r, c))
+            paths = self.compute_captures()
+            if len(paths) > 1:
+                for path in paths:
+                    if not (r, c) in path:
+                        self.capture_stone(path)
+            elif len(paths) == 1:
+                path = paths[0]
+                self.capture_stone(path)
 
-    def canPlay(self, r, c):
+    def can_play(self, r, c):
+        # range check
         if r < 0 or r >= self.rows:
             return False
         if c < 0 or c >= self.cols:
             return False
+        # needs to be empty cell
         if self.board[r][c] > 0:
             return False
+        # cannot play where no liberty
+        tmp = self.board[r][c]
+        self.board[r][c] = self.turn
+        paths = self.compute_captures()
+        self.board[r][c] = tmp
+        if len(paths) == 1 and (r, c) in paths[0]:
+            return False
+        # no replay in Ko position
+        # todo
         return True
 
-    def compute_captures(self, played):
-        def remove_cells(p):
-            for r, c in p:
-                if self.board[r][c] == 1:
-                    self.white_captures.append((r, c))
-                if self.board[r][c] == 2:
-                    self.black_captures.append((r, c))
-                self.board[r][c] = 0
+    def game_over(self):
+        finished = True
+        for i in range(self.rows):
+            for j in range(self.cols):
+                if self.board[i][j] == 0:
+                    finished = False
+        return finished
+
+    def capture_stone(self, p):
+        for r, c in p:
+            if self.board[r][c] == 1:
+                self.white_captures += 1
+            if self.board[r][c] == 2:
+                self.black_captures += 1
+            self.board[r][c] = 0
+
+    def compute_captures(self):
         visited = set()
         paths = []
         for i in range(self.rows):
@@ -48,24 +75,19 @@ class Game:
                     qq.append((i, j))
                     visited.add((i, j))
                     while len(qq) != 0:
-                        for liberty in self.get_all_liberties(qq.popleft()):
-                            if not liberty in visited and self.board[liberty[0]][liberty[1]] == color:
-                                qq.append(liberty)
-                                visited.add(liberty)
-                                path.append(liberty)
-                            elif self.board[liberty[0]][liberty[1]] <= 0:
-                                liberties.add(liberty)
+                        for neighbour in self.get_all_neighbours(qq.popleft()):
+                            nr, nc = neighbour
+                            if not neighbour in visited and self.board[nr][nc] == color:
+                                qq.append(neighbour)
+                                visited.add(neighbour)
+                                path.append(neighbour)
+                            elif self.board[nr][nc] <= 0:
+                                liberties.add(neighbour)
                     if len(liberties) == 0:
                         paths.append(path)
-        if len(paths) > 1:
-            for path in paths:
-                if not played in path:
-                    remove_cells(path)
-        elif len(paths) == 1:
-            path = paths[0]
-            remove_cells(path)
+        return paths
 
-    def get_all_liberties(self, r_c):
+    def get_all_neighbours(self, r_c):
         def inBoardRange(x, y): return not (x < 0 or y < 0 or x >= self.rows or y >= self.cols)
         r, c = r_c
         neighbours = []
@@ -80,7 +102,7 @@ class Game:
         return neighbours
 
     def compute_territories(self):
-        if self.round <= 1:
+        if len(self.gamelog) <= 1:
             return
         visited = set()
         for i in range(self.rows):
@@ -95,7 +117,7 @@ class Game:
                     current_color = 0
                     color_picked = False
                     while len(qq) != 0:
-                        for nr, nc in self.get_all_liberties(qq.popleft()):
+                        for nr, nc in self.get_all_neighbours(qq.popleft()):
                             if not color_picked and self.board[nr][nc] > 0:
                                 current_color = self.board[nr][nc]
                                 color_picked = True
