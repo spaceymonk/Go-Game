@@ -17,7 +17,8 @@ class Game:
         self.log.append((self.turn, None, None))
         self.nextTurn()
 
-    def play(self, r, c):
+    def play(self, r_c):
+        r, c = r_c
         if self.can_play(r, c):
             self.take_snapshot()
             self.log.append((self.turn, r, c))
