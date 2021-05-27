@@ -1,4 +1,3 @@
-from time import sleep
 from random import randint
 
 
@@ -11,12 +10,10 @@ class RandomBot:
         self.status = True
         if len(self.game.log) > 0:
             t, r, c = self.game.log[-1]
-            print(t, r, c)
             if r == None:
                 self.game.pass_turn()
                 self.status = False
                 return
-        # sleep(2)
         positions = self.get_available_positions()
         if len(positions) <= 1:
             self.game.pass_turn()

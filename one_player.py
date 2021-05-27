@@ -2,6 +2,7 @@ import pygame
 import config
 from game import Game
 from utility import *
+from threading import Thread
 from bots.random_bot import RandomBot as Bot
 
 
@@ -38,8 +39,10 @@ class App:
             pygame.display.set_caption(f"Round: {len(self.game.log)} B: {black} W: {white}")
             self._refresh = False
         if self.bot.status == False and self.game.turn != config.PLAYER:
-            self.bot.play()
-            self._refresh = True
+            thread = Thread(target=self.bot.play)
+            thread.start()
+        if len(self.game.log) > 0 and self.game.log[-1][0] != config.PLAYER:  # if bot has played
+            self._refresh = True  # refresh screen
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #
@@ -101,13 +104,14 @@ class App:
             r, c = convertToBoardCoord(pygame.mouse.get_pos())
             if self.game.can_play(r, c):
                 pygame.draw.circle(self._display, config.WHITE if self.game.turn == 2 else config.BLACK,
-                                    (c * config.STONE_SIZE + config.GAP_SIZE//2,
+                                   (c * config.STONE_SIZE + config.GAP_SIZE//2,
                                     r * config.STONE_SIZE + config.GAP_SIZE//2),
-                                    config.STONE_SIZE//4)
+                                   config.STONE_SIZE//4)
         # ---------------------------- bot think indicator --------------------------- #
         if self.bot.status == True:
-            r = config.STONE_SIZE//4 + (pygame.time.get_ticks() % 2) * 1.5
-            x = (config.SCREEN_RESOLUTION_WITH_GAPS[0] - r) // 2
+            t = pygame.time.get_ticks() // 500
+            r = config.STONE_SIZE//6 + (t % 2) * 2
+            x = (config.SCREEN_RESOLUTION_WITH_GAPS[0]) // 2
             y = config.SCREEN_RESOLUTION_WITH_GAPS[1] - r
             pygame.draw.circle(self._display, config.GRAY, (x, y), r)
         pygame.display.flip()
