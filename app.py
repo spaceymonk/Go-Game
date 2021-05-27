@@ -33,6 +33,7 @@ class App:
                 self._running = False
             black, white = self.game.compute_scores()
             pygame.display.set_caption(f"Round: {len(self.game.log)} B: {black} W: {white}")
+            self._refresh = False
 
     def on_render(self):
         # -------------------------------- draw board -------------------------------- #
