@@ -6,7 +6,7 @@ BOARD_RESOLUTION = (9, 9)
 
 # 1 - one player (computer vs player)
 # 2 - two player (player vs player)
-GAMEMODE = 2
+GAMEMODE = 1
 
 # 1 - player will be black
 # 2 - player will be white
